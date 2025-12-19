@@ -38,8 +38,9 @@ class TaxiServiceTests(TestCase):
 
     def test_car_detail_view(self):
         self.client.login(username="bober1", password="pass")
-        response = self.client.get(reverse("taxi:car-detail",
-                                           args=[self.car1.id]))
+        response = self.client.get(
+            reverse("taxi:car-detail", args=[self.car1.id])
+        )
         self.assertContains(response, "Camry")
 
     def test_driver_list_view(self):
@@ -50,8 +51,9 @@ class TaxiServiceTests(TestCase):
 
     def test_driver_detail_view(self):
         self.client.login(username="bober1", password="pass")
-        response = self.client.get(reverse("taxi:driver-detail",
-                                           args=[self.driver1.id]))
+        response = self.client.get(
+            reverse("taxi:driver-detail", args=[self.driver1.id])
+        )
         self.assertContains(response, "bober1")
 
     def test_manufacturer_list_view(self):
@@ -64,28 +66,35 @@ class TaxiServiceTests(TestCase):
         self.client.login(username="bober1", password="pass")
         response = self.client.get(
             reverse("taxi:car-list"),
-            {"model": "Camry"})
+            {"model": "Camry"}
+        )
         self.assertContains(response, "Camry")
         self.assertNotContains(response, "X5")
 
     def test_search_car_no_match(self):
         self.client.login(username="bober1", password="pass")
-        response = self.client.get(reverse("taxi:car-list"),
-                                   {"model": "Corolla"})
+        response = self.client.get(
+            reverse("taxi:car-list"),
+            {"model": "Corolla"}
+        )
         self.assertNotContains(response, "Camry")
         self.assertNotContains(response, "X5")
 
     def test_search_driver_partial_match(self):
         self.client.login(username="bober1", password="pass")
-        response = self.client.get(reverse("taxi:driver-list"),
-                                   {"username": "bober"})
+        response = self.client.get(
+            reverse("taxi:driver-list"),
+            {"username": "bober"}
+        )
         self.assertContains(response, "bober1")
         self.assertContains(response, "bober2")
 
     def test_search_driver_no_match(self):
         self.client.login(username="bober1", password="pass")
-        response = self.client.get(reverse("taxi:driver-list"),
-                                   {"username": "alice"})
+        response = self.client.get(
+            reverse("taxi:driver-list"),
+            {"username": "alice"}
+        )
         driver_usernames = [
             d.username for d in response.context["object_list"]
         ]
@@ -101,7 +110,29 @@ class TaxiServiceTests(TestCase):
 
     def test_search_manufacturer_exact_match(self):
         self.client.login(username="bober1", password="pass")
-        response = self.client.get(reverse("taxi:manufacturer-list"),
-                                   {"name": "Toyota"})
+        response = self.client.get(
+            reverse("taxi:manufacturer-list"),
+            {"name": "Toyota"}
+        )
         self.assertContains(response, "Toyota")
         self.assertNotContains(response, "BMW")
+
+    def test_search_manufacturer_partial_match(self):
+        self.client.login(username="bober1", password="pass")
+        response = self.client.get(
+            reverse("taxi:manufacturer-list"),
+            {"name": "To"}
+        )
+        self.assertContains(response, "Toyota")
+        self.assertNotContains(response, "BMW")
+
+    def test_search_manufacturer_no_match(self):
+        self.client.login(username="bober1", password="pass")
+        response = self.client.get(
+            reverse("taxi:manufacturer-list"),
+            {"name": "Honda"}
+        )
+        manufacturer_names = [
+            m.name for m in response.context["object_list"]
+        ]
+        self.assertNotIn("Honda", manufacturer_names)
